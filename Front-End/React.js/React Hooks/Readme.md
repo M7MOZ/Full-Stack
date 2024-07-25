@@ -91,25 +91,34 @@
   import { useState, useEffect } from "react";
 
   function App() {
-    const [seconds, setSeconds] = useState(0);
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setSeconds((prevSeconds) => prevSeconds + 1);
-      }, 1000);
-
-      // Cleanup function
-      return () => clearInterval(interval);
-    }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
-
-    return (
-      <div className="bg-[#0000002c] rounded-lg  p-5">
-        <p>Timer: {seconds} seconds</p>
-      </div>
-    );
+  const [showTimer, setShowTimer] = useState(true);
+  return <div className="bg-[#0000002c] rounded-lg  p-5">
+    <button onClick={() => setShowTimer(!showTimer)}>
+      {showTimer ? "Hide" : "Show"} Timer
+    </button>
+    {showTimer && <Timer />}
+  </div>;
   }
 
+  function Timer() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((prevSeconds) => prevSeconds + 1);
+    }, 1000);
+
+    // Cleanup function
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+  return (
+    <div className="bg-[#0000002c] rounded-lg  p-5">
+      <p>Timer: {seconds} seconds</p>
+    </div>
+  );
+  }
   export default App;
+
   ```
 
   Output:
@@ -397,3 +406,59 @@
   - memo ensures that the `Child` component only re-renders when its props change. Since `increment` is stable, the `Child` component avoids unnecessary re-renders.
 
   ***
+  
+  ### 4. useRef:
+
+  `App:`
+
+  ```javascript
+  import React, { useState, useEffect, useRef } from "react";
+
+  export default function App() {
+  // State for the counter
+  const [counter, setCounter] = useState(0);
+
+  // Ref for the input element
+  const amountRef = useRef();
+
+  // Ref to track if counter reaches max value
+  const reachMaxRef = useRef(false);
+
+  // Function to handle counter increment
+  const handleCounter = () => {
+    if (!reachMaxRef.current) {
+      if (counter >= 10) {
+        reachMaxRef.current = true;
+      } else {
+        setCounter((c) => c + (+amountRef.current.value || 1));
+      }
+    } else {
+      console.log("You reached the maximum number of clicks");
+    }
+  };
+
+  // Focus on the input element when the component mounts
+  useEffect(() => {
+    amountRef.current.focus();
+  }, []);
+
+  return (
+    <div>
+      {/* Input element */}
+      <input ref={amountRef} />
+      <br />
+
+      {/* Button to increment counter */}
+      <button onClick={handleCounter}>
+        Count up
+      </button>
+      <br />
+
+      {/* Display the counter value */}
+      <h1 className="mt-3">{counter}</h1>
+    </div>
+  );
+  }
+
+  ```
+  - The `useRef` hook in React is essential for accessing DOM elements directly and storing mutable values without causing re-renders, thereby optimizing component performance.
