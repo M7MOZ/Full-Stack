@@ -397,3 +397,88 @@
   - memo ensures that the `Child` component only re-renders when its props change. Since `increment` is stable, the `Child` component avoids unnecessary re-renders.
 
   ***
+  ### 3.useMemo
+- `useMemo` is a React Hook that memoizes the result of a computation, preventing it from being recalculated on every render unless its dependencies change.
+```javascript
+  // App.js
+  import React, { useState, useCallback, useMemo } from "react";
+  // import Button from "./button";
+
+  function App() {
+    const [count, setCount] = useState(0);
+    // Memoize the callback
+  const increment = useCallback(() => {
+    console.log("increment called");
+    setCount((prevCount) => prevCount + 1);
+  }, []); // No dependencies, so the function is created once
+
+  // Memoize the Button component instance
+  const memoizedButton = useMemo(() => {
+    return <Button onClick={increment} />;
+  }, [increment]);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      {memoizedButton}
+    </div>
+  );
+  }  
+  const Button = ({ onClick }) => {
+  console.log('Button component rendered',);
+  return <button onClick={onClick}>increment</button>;
+  };
+  export default App;
+```
+### 4.useRef
+-`useRef` is a React Hook that returns a mutable ref object whose .current property is initialized to the passed argument (initial value). The object remains the same across re-renders. This can be used to directly access a DOM element or store a mutable value that does not trigger re-renders when updated.
+
+```javascript
+import React, { useState, useEffect, useRef } from "react";
+
+export default function App() {
+  // State for the counter
+  const [counter, setCounter] = useState(0);
+
+  // Ref for the input element
+  const amountRef = useRef();
+
+  // Ref to track if counter reaches max value
+  const reachMaxRef = useRef(false);
+
+  // Function to handle counter increment
+  const handleCounter = () => {
+    if (!reachMaxRef.current) {
+      if (counter >= 10) {
+        reachMaxRef.current = true;
+      } else {
+        setCounter((c) => c + (+amountRef.current.value || 1));
+      }
+    } else {
+      console.log("You reached the maximum number of clicks");
+    }
+  };
+
+  // Focus on the input element when the component mounts
+  useEffect(() => {
+    amountRef.current.focus();
+  }, []);
+
+  return (
+    <div>
+      {/* Input element */}
+      <input ref={amountRef} />
+      <br />
+
+      {/* Button to increment counter */}
+      <button onClick={handleCounter}>
+        Count up
+      </button>
+      <br />
+
+      {/* Display the counter value */}
+      <h1 className="mt-3">{counter}</h1>
+    </div>
+  );
+}
+```
